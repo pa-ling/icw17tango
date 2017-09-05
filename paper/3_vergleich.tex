@@ -1,0 +1,39 @@
+% !TEX root = main.tex
+
+\section{Vergleich}
+In diesem Abschnitt werden die wesentlichen Punkte beider Technologien zusammengefasst und gegenübergestellt. Besonders hervorzuheben ist, dass die scheinbar größte Schwäche von Vuforia, der Marker, gleichzeitig auch eine Stärke sein kann. Der Marker stellt sicher, dass die Projektion an der richtigen Stelle bleibt. Bei Google Tango müssen dafür zusätzliche Maßnahmen entwickelt werden, z.B. ein Algorithmus zur Berechnung der optimalen Stelle in der PointCloud oder man lässt den Nutzer über UI-Elemente entscheiden. Dies ist natürlich sehr stark vom Verwendungszweck abhängig und gibt dem Entwickler auch eine gewisse Freiheit.\par
+Beide haben aber auch mit ähnlichen Problemen zu kämpfen. Dazu gehört bspw. die Reichweite. Ein Marker wird mit zunehmender Entfernung mit immer weniger Pixeln von der Kamera erfasst. Irgendwann kann er dann nicht mehr wahrgenommen werden. Gleiches gilt für die IR-Projektion von Google Tango auch diese hat seine Grenze schnell erreicht.
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|p{4cm}|p{4cm}|}
+		\hline
+		\textbf{Vuforia} & \textbf{Google Tango}\\
+		\hline
+		\begin{itemize}
+			\setlength\itemsep{0.5em}
+			\raggedright
+			\item Markerbasiertes Tracking\newline
+			$\rightarrow$ Verbindungspunkt zwischen realer und virtueller Welt
+			\item benötigt eine Kamera\newline 
+			$\rightarrow$ günstiger, aber wenige Inputdaten\newline
+			\item verfügbar für viele Geräte und Betriebssysteme
+			\item mittlere bis gute Licht-verhältnisse notwendig (Der Marker muss sichtbar sein)
+			\item keine Probleme bei Sonnenlicht\newline
+			\item nicht lernfähig
+		\end{itemize}
+		 & 
+		 \begin{itemize}
+		 	\setlength\itemsep{0.5em}
+		 	\raggedright
+		 	\item Markerloses Tracking\newline
+		 	$\rightarrow$ Viele Möglichkeiten, Projektion jedoch nicht immer trivial
+		 	\item benötigt zwei Kameras und einen IR-Projektor $\rightarrow$ teurer, aber viele Inputdaten (z.B. Tiefe)
+		 	\item (noch) verfügbar für ein Endverbraucher-Produkt
+		 	\item theoretisch auch im Dunkeln verwendbar (abhängig von der Anwendung) \newline
+		 	\item starke Beeinträchtigung durch Sonnenlicht oder andere IR-Quellen
+		 	\item Lernfähigkeit, "`Gedächtnis"'
+		 \end{itemize}\\
+		\hline
+	\end{tabular}
+\end{table}
