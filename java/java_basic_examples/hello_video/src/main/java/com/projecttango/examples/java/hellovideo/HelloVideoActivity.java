@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.projecttango.examples.java.hellovideo;
 
 import com.google.atap.tangoservice.Tango;
@@ -36,7 +20,6 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -59,17 +42,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HelloVideoActivity extends Activity {
     private static final String TAG = HelloVideoActivity.class.getSimpleName();
     private static final int INVALID_TEXTURE_ID = 0;
-    private static final String sTimestampFormat = "Timestamp: %f";
 
     private GLSurfaceView mSurfaceView;
     private HelloVideoRenderer mRenderer;
-    private TextView mTimestampTextView;
 
     private Tango mTango;
     private TangoConfig mConfig;
     private boolean mIsConnected = false;
 
-    // NOTE: Naming indicates which thread is in charge of updating this variable.
     private int mConnectedTextureIdGlThread = INVALID_TEXTURE_ID;
     private AtomicBoolean mIsFrameAvailableTangoThread = new AtomicBoolean(false);
 
@@ -80,7 +60,6 @@ public class HelloVideoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTimestampTextView = (TextView) findViewById(R.id.timestamp_textview);
         mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
         DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
         if (displayManager != null) {
@@ -299,17 +278,6 @@ public class HelloVideoActivity extends Activity {
 
                             // Log and display timestamp for informational purposes.
                             Log.d(TAG, "Frame updated. Timestamp: " + rgbTimestamp);
-
-                            // Updating the UI needs to be in a separate thread. Do it through a
-                            // final local variable to avoid concurrency issues.
-                            final String timestampText = String.format(sTimestampFormat,
-                                    rgbTimestamp);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mTimestampTextView.setText(timestampText);
-                                }
-                            });
                         }
                     }
                 } catch (TangoErrorException e) {
