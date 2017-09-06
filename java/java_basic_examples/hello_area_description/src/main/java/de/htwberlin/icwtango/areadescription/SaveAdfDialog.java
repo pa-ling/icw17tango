@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.projecttango.examples.java.helloareadescription;
+package de.htwberlin.icwtango.areadescription;
 
 import android.app.AlertDialog;
 import android.content.Context;

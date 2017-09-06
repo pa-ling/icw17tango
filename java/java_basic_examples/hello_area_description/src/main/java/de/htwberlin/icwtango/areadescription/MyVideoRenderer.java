@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.projecttango.examples.java.helloareadescription;
+package de.htwberlin.icwtango.areadescription;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
@@ -33,8 +33,8 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * A simple OpenGL renderer that renders the Tango RGB camera texture on a full-screen background.
  */
-public class HelloVideoRenderer implements GLSurfaceView.Renderer {
-    private static final String TAG = HelloVideoRenderer.class.getSimpleName();
+public class MyVideoRenderer implements GLSurfaceView.Renderer {
+    private static final String TAG = MyVideoRenderer.class.getSimpleName();
 
     private final String vss =
             "attribute vec2 vPosition;\n" +
@@ -73,7 +73,7 @@ public class HelloVideoRenderer implements GLSurfaceView.Renderer {
     private int mProgram;
     private RenderCallback mRenderCallback;
 
-    public HelloVideoRenderer(RenderCallback callback) {
+    public MyVideoRenderer(RenderCallback callback) {
         mRenderCallback = callback;
         mTextures[0] = 0;
         // Vertex positions.

@@ -15,8 +15,7 @@
    limitations under the License.
 -->
 <resources>
-    <string name="app_name">Java Hello Area Description</string>
-    <string name="app_name_long">Java Hello Area Description Example</string>
+    <string name="app_name">Google Tango Area Description for ICW</string>
     <string name="start">Start</string>
     <string name="set_name_dialog_title">Set the ADF name</string>
     <string name="cancel">Cancel</string>

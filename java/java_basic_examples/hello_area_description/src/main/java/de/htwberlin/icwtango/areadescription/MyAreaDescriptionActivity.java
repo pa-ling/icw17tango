@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.projecttango.examples.java.helloareadescription;
+package de.htwberlin.icwtango.areadescription;
 
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
@@ -51,16 +51,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Main Activity class for the Area Description example. Handles the connection to the Tango Service
  * and propagation of Tango pose data to Layout view.
  */
-public class HelloAreaDescriptionActivity extends Activity implements
+public class MyAreaDescriptionActivity extends Activity implements
         SetAdfNameDialog.CallbackListener,
         SaveAdfTask.SaveAdfListener {
 
-    private static final String TAG = HelloAreaDescriptionActivity.class.getSimpleName();
+    private static final String TAG = MyAreaDescriptionActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
     private static final int INVALID_TEXTURE_ID = 0;
 
     private GLSurfaceView mSurfaceView;
-    private HelloVideoRenderer mRenderer;
+    private MyVideoRenderer mRenderer;
 
     private Tango mTango;
     private TangoConfig mConfig;
@@ -134,14 +134,14 @@ public class HelloAreaDescriptionActivity extends Activity implements
         // Initialize Tango Service as a normal Android Service. Since we call mTango.disconnect()
         // in onPause, this will unbind Tango Service, so every time onResume gets called we
         // should create a new Tango object.
-        mTango = new Tango(HelloAreaDescriptionActivity.this, new Runnable() {
+        mTango = new Tango(MyAreaDescriptionActivity.this, new Runnable() {
             // Pass in a Runnable to be called from UI thread when Tango is ready; this Runnable
             // will be running on a new thread.
             // When Tango is ready, we can call Tango functions safely here only when there are no
             // UI thread changes involved.
             @Override
             public void run() {
-                synchronized (HelloAreaDescriptionActivity.this) {
+                synchronized (MyAreaDescriptionActivity.this) {
                     try {
                         mConfig = setTangoConfig(
                                 mTango, mIsLearningMode, mIsConstantSpaceRelocalize);
@@ -170,7 +170,7 @@ public class HelloAreaDescriptionActivity extends Activity implements
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (HelloAreaDescriptionActivity.this) {
+                        synchronized (MyAreaDescriptionActivity.this) {
                             setupTextViewsAndButtons(mTango, mIsLearningMode,
                                     mIsConstantSpaceRelocalize);
                         }
@@ -460,7 +460,7 @@ public class HelloAreaDescriptionActivity extends Activity implements
      */
     private void setupRenderer() {
         mSurfaceView.setEGLContextClientVersion(2);
-        mRenderer = new HelloVideoRenderer(new HelloVideoRenderer.RenderCallback() {
+        mRenderer = new MyVideoRenderer(new MyVideoRenderer.RenderCallback() {
             @Override
             public void preRender() {
                 Log.d(TAG, "preRender");
@@ -475,7 +475,7 @@ public class HelloAreaDescriptionActivity extends Activity implements
                 try {
                     // Synchronize against concurrently disconnecting the service triggered from the
                     // UI thread.
-                    synchronized (HelloAreaDescriptionActivity.this) {
+                    synchronized (MyAreaDescriptionActivity.this) {
                         // Connect the Tango SDK to the OpenGL texture ID where we are going to
                         // render the camera.
                         // NOTE: This must be done after the texture is generated and the Tango
@@ -542,7 +542,7 @@ public class HelloAreaDescriptionActivity extends Activity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(HelloAreaDescriptionActivity.this,
+                Toast.makeText(MyAreaDescriptionActivity.this,
                         getString(resId), Toast.LENGTH_LONG).show();
                 finish();
             }

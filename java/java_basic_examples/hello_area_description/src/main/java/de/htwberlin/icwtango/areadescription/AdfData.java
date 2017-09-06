@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.projecttango.examples.java.helloareadescription;
+package de.htwberlin.icwtango.areadescription;
 
 /**
  * Contains an ADF Name and its UUID.

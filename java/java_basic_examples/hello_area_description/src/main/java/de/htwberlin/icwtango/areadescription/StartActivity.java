@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.projecttango.examples.java.helloareadescription;
+package de.htwberlin.icwtango.areadescription;
 
 import com.google.atap.tangoservice.Tango;
 
@@ -32,9 +32,9 @@ import android.widget.ToggleButton;
 public class StartActivity extends Activity {
     // The unique key string for storing the user's input.
     public static final String USE_AREA_LEARNING =
-            "com.projecttango.examples.java.helloareadescription.usearealearning";
+            "de.htwberlin.icwtango.areadescription.usearealearning";
     public static final String LOAD_ADF =
-            "com.projecttango.examples.java.helloareadescription.loadadf";
+            "de.htwberlin.icwtango.areadescription.loadadf";
 
     // Permission request action.
     public static final int REQUEST_CODE_TANGO_PERMISSION = 0;
@@ -99,7 +99,7 @@ public class StartActivity extends Activity {
      * Start the main area description activity and pass in the user's configuration.
      */
     private void startAreaDescriptionActivity() {
-        Intent startAdIntent = new Intent(this, HelloAreaDescriptionActivity.class);
+        Intent startAdIntent = new Intent(this, MyAreaDescriptionActivity.class);
         startAdIntent.putExtra(USE_AREA_LEARNING, mIsUseAreaLearning);
         startAdIntent.putExtra(LOAD_ADF, mIsLoadAdf);
         startActivity(startAdIntent);
@@ -117,7 +117,7 @@ public class StartActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // The result of the permission activity.
         //
-        // Note that when the permission activity is dismissed, the HelloAreaDescriptionActivity's
+        // Note that when the permission activity is dismissed, the MyAreaDescriptionActivity's
         // onResume() callback is called. Because the Tango Service is connected in the onResume()
         // function, we do not call connect here.
         //
