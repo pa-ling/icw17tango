@@ -14,7 +14,7 @@
     <string name="uuid">UUID</string>
     <string name="tango_error">"Tango Exception! Try again!"</string>
     <string name="tango_invalid">"Tango Invalid Exception! Try again!"</string>
-    <string name="tango_out_of_date_exception">"Tango Service outdated!"</string>
+    <string name="tango_out_of_date">"Tango Service outdated!"</string>
     <string name="no_uuid_tango_error">"No ADF with that UUID!"</string>
     <string name="adf_save">"ADF saved with UUID: "</string>
     <string name="adf_exists_app_space">"Tango Error! ADF already exists in app space or File system."</string>
@@ -53,5 +53,8 @@
         <item>Delete from  App space</item>
         <item>Import to API space</item>
     </string-array>
+    <string name="clear">Clear</string>
+    <string name="pause">Pause</string>
+    <string name="floorplan">Floorplan</string>
 
 </resources>

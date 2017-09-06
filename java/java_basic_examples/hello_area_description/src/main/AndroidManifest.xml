@@ -41,6 +41,11 @@
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize">
         </activity>
+        <activity
+            android:name=".FloorPlanReconstructionActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize">
+        </activity>
     </application>
 
 </manifest>

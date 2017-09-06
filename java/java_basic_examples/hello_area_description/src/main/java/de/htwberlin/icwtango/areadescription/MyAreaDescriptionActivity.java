@@ -135,8 +135,8 @@ public class MyAreaDescriptionActivity extends Activity implements
                         mIsConnected = true;
                         setDisplayRotation();
                     } catch (TangoOutOfDateException e) {
-                        Log.e(TAG, getString(R.string.tango_out_of_date_exception), e);
-                        showsToastAndFinishOnUiThread(R.string.tango_out_of_date_exception);
+                        Log.e(TAG, getString(R.string.tango_out_of_date), e);
+                        showsToastAndFinishOnUiThread(R.string.tango_out_of_date);
                     } catch (TangoErrorException e) {
                         Log.e(TAG, getString(R.string.tango_error), e);
                         showsToastAndFinishOnUiThread(R.string.tango_error);
