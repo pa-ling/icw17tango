@@ -55,15 +55,4 @@
         android:onClick="adfListViewClicked"
         android:layout_below="@+id/start" />
 
-    <Button
-        android:id="@+id/floorplan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10pt"
-        android:layout_marginLeft="5pt"
-        android:layout_marginRight="5pt"
-        android:text="@string/floorplan"
-        android:onClick="floorplanClicked"
-        android:layout_below="@+id/AdfListView" />
-
 </RelativeLayout>

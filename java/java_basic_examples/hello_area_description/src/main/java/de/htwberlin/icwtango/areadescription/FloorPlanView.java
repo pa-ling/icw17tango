@@ -42,8 +42,8 @@ import java.util.List;
  * rate.
  * The floorplan is drawn using standard canvas draw methods.
  */
-public class FloorplanView extends SurfaceView implements SurfaceHolder.Callback {
-    private static final String TAG = FloorplanView.class.getSimpleName();
+public class FloorPlanView extends SurfaceView implements SurfaceHolder.Callback {
+    private static final String TAG = FloorPlanView.class.getSimpleName();
 
     // Scale between meters and pixels. Hardcoded to a reasonable default.
     private static final float SCALE = 100f;
@@ -119,17 +119,17 @@ public class FloorplanView extends SurfaceView implements SurfaceHolder.Callback
 
     private DrawingCallback mCallback;
 
-    public FloorplanView(Context context) {
+    public FloorPlanView(Context context) {
         super(context);
         init(context);
     }
 
-    public FloorplanView(Context context, AttributeSet attrs) {
+    public FloorPlanView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public FloorplanView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FloorPlanView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -397,7 +397,7 @@ public class FloorplanView extends SurfaceView implements SurfaceHolder.Callback
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             // Synchronize while changing the scale factor, since it is read in the renderer thread.
-            synchronized (FloorplanView.this) {
+            synchronized (FloorPlanView.this) {
                 mScaleFactor *= detector.getScaleFactor();
                 // Don't let the object get too small or too large.
                 mScaleFactor = Math.max(mMinScaleFactor, Math.min(mScaleFactor, mMaxScaleFactor));

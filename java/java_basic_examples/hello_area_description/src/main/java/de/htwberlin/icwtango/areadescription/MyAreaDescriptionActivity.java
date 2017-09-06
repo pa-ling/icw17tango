@@ -1,5 +1,7 @@
 package de.htwberlin.icwtango.areadescription;
 
+import com.google.atap.tango.reconstruction.TangoFloorplanLevel;
+import com.google.atap.tango.reconstruction.TangoPolygon;
 import com.google.atap.tangoservice.Tango;
 import com.google.atap.tangoservice.Tango.OnTangoUpdateListener;
 import com.google.atap.tangoservice.TangoAreaDescriptionMetaData;
@@ -21,7 +23,9 @@ import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MyAreaDescriptionActivity extends Activity implements
         SetAdfNameDialog.CallbackListener,
-        SaveAdfTask.SaveAdfListener {
+        SaveAdfTask.SaveAdfListener, FloorPlanView.DrawingCallback {
 
     private static final String TAG = MyAreaDescriptionActivity.class.getSimpleName();
     private static final int SECS_TO_MILLISECS = 1000;
@@ -46,10 +51,14 @@ public class MyAreaDescriptionActivity extends Activity implements
     private GLSurfaceView mSurfaceView;
     private MyVideoRenderer mRenderer;
 
+    private TangoFloorplanner mTangoFloorplanner;
     private Tango mTango;
     private TangoConfig mConfig;
     private boolean mIsConnected = false;
+    private boolean mIsPaused;
 
+
+    private FloorPlanView mFloorplanView;
     private TextView mUuidTextView;
     private TextView mRelocalizationTextView;
     private Button mSaveAdfButton;
@@ -58,6 +67,7 @@ public class MyAreaDescriptionActivity extends Activity implements
     private AtomicBoolean mIsFrameAvailableTangoThread = new AtomicBoolean(false);
 
     private int mDisplayRotation = 0;
+    private float mMinAreaSpace = 0;
 
     private double mPreviousPoseTimeStamp;
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
@@ -77,6 +87,14 @@ public class MyAreaDescriptionActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_area_learning);
+
+        TypedValue typedValue = new TypedValue();
+        getResources().getValue(R.dimen.min_area_space, typedValue, true);
+        mMinAreaSpace = typedValue.getFloat();
+
+        mFloorplanView = (FloorPlanView) findViewById(R.id.floorplan);
+        mFloorplanView.setZOrderOnTop(true);
+        mFloorplanView.registerCallback(this);
 
         mSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
         DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
@@ -127,12 +145,19 @@ public class MyAreaDescriptionActivity extends Activity implements
             public void run() {
                 synchronized (MyAreaDescriptionActivity.this) {
                     try {
-                        mConfig = setTangoConfig(
+                        mConfig = setupTangoConfig(
                                 mTango, mIsLearningMode, mIsConstantSpaceRelocalize);
                         mTango.connect(mConfig);
                         startupTango();
                         TangoSupport.initialize(mTango);
                         mIsConnected = true;
+                        mIsPaused = false;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pauseOrResumeFloorplanning(mIsPaused);
+                            }
+                        });
                         setDisplayRotation();
                     } catch (TangoOutOfDateException e) {
                         Log.e(TAG, getString(R.string.tango_out_of_date), e);
@@ -180,12 +205,20 @@ public class MyAreaDescriptionActivity extends Activity implements
         // If you lock against this object in a Tango callback thread it will cause a deadlock.
         synchronized (this) {
             try {
+                if (mTangoFloorplanner != null) {
+                    mTangoFloorplanner.stopFloorplanning();
+                    mTangoFloorplanner.resetFloorplan();
+                    mTangoFloorplanner.release();
+                    mTangoFloorplanner = null;
+                }
+
                 mTango.disconnectCamera(TangoCameraIntrinsics.TANGO_CAMERA_COLOR);
                 // We need to invalidate the connected texture ID so that we cause a
                 // re-connection in the OpenGL thread after resume.
                 mConnectedTextureIdGlThread = INVALID_TEXTURE_ID;
                 mTango.disconnect();
                 mIsConnected = false;
+                mIsPaused = true;
             } catch (TangoErrorException e) {
                 Log.e(TAG, getString(R.string.tango_error), e);
             }
@@ -229,10 +262,12 @@ public class MyAreaDescriptionActivity extends Activity implements
      * Sets up the Tango configuration object. Make sure mTango object is initialized before
      * making this call.
      */
-    private TangoConfig setTangoConfig(Tango tango, boolean isLearningMode, boolean isLoadAdf) {
+    private TangoConfig setupTangoConfig(Tango tango, boolean isLearningMode, boolean isLoadAdf) {
         // Use default configuration for Tango Service.
         TangoConfig config = tango.getConfig(TangoConfig.CONFIG_TYPE_DEFAULT);
         config.putBoolean(TangoConfig.KEY_BOOLEAN_COLORCAMERA, true);
+        config.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true);
+        config.putInt(TangoConfig.KEY_INT_DEPTH_MODE, TangoConfig.TANGO_DEPTH_MODE_POINT_CLOUD);
         // Check if learning mode.
         if (isLearningMode) {
             // Set learning mode to config.
@@ -271,8 +306,21 @@ public class MyAreaDescriptionActivity extends Activity implements
                 TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
                 TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE));
 
-        mTango.connectListener(framePairs, new OnTangoUpdateListener() {
+        mTangoFloorplanner = new TangoFloorplanner(new TangoFloorplanner
+                .OnFloorplanAvailableListener() {
+            @Override
+            public void onFloorplanAvailable(List<TangoPolygon> polygons,
+                                             List<TangoFloorplanLevel> levels) {
+                mFloorplanView.setFloorplan(polygons);
+            }
+        });
+        // Set camera intrinsics to TangoFloorplanner.
+        mTangoFloorplanner.setDepthCameraCalibration(mTango.getCameraIntrinsics
+                (TangoCameraIntrinsics.TANGO_CAMERA_DEPTH));
 
+        mTangoFloorplanner.startFloorplanning();
+
+        mTango.connectListener(framePairs, new OnTangoUpdateListener() {
             @Override
             public void onPoseAvailable(TangoPoseData pose) {
                 // Make sure to have atomic access to Tango data so that UI loop doesn't interfere
@@ -320,8 +368,8 @@ public class MyAreaDescriptionActivity extends Activity implements
             }
 
             @Override
-            public void onPointCloudAvailable(TangoPointCloudData xyzij) {
-                // We are not using onPointCloudAvailable for this app.
+            public void onPointCloudAvailable(TangoPointCloudData tangoPointCloudData) {
+                mTangoFloorplanner.onPointCloudAvailable(tangoPointCloudData);
             }
 
             @Override
@@ -515,6 +563,66 @@ public class MyAreaDescriptionActivity extends Activity implements
                 }
             }
         });
+    }
+
+    /**
+     * Method called each time right before the floorplan is drawn. It allows use of the Tango
+     * Service to get the device position and orientation.
+     */
+    @Override
+    public void onPreDrawing() {
+        try {
+            // Synchronize against disconnecting while using the service.
+            synchronized (MyAreaDescriptionActivity.this) {
+                // Don't execute any Tango API actions if we're not connected to
+                // the service.
+                if (!mIsConnected) {
+                    return;
+                }
+
+                // Calculate the device pose in OpenGL engine (Y+ up).
+                TangoPoseData devicePose = TangoSupport.getPoseAtTime(0.0,
+                        TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE,
+                        TangoPoseData.COORDINATE_FRAME_DEVICE,
+                        TangoSupport.ENGINE_OPENGL,
+                        TangoSupport.ENGINE_OPENGL,
+                        mDisplayRotation);
+
+                if (devicePose.statusCode == TangoPoseData.POSE_VALID) {
+                    // Extract position and rotation around Z.
+                    float[] devicePosition = devicePose.getTranslationAsFloats();
+                    float[] deviceOrientation = devicePose.getRotationAsFloats();
+                    float yawRadians = yRotationFromQuaternion(deviceOrientation[0],
+                            deviceOrientation[1], deviceOrientation[2],
+                            deviceOrientation[3]);
+
+                    mFloorplanView.updateCameraMatrix(devicePosition[0], devicePosition[2],
+                            yawRadians);
+                } else {
+                    Log.w(TAG, "Can't get last device pose");
+                }
+            }
+        } catch (TangoErrorException e) {
+            Log.e(TAG, "Tango error while querying device pose.", e);
+        } catch (TangoInvalidException e) {
+            Log.e(TAG, "Tango exception while querying device pose.", e);
+        }
+    }
+
+    /**
+     * Calculates the rotation around Y (yaw) from the given quaternion.
+     */
+    private static float yRotationFromQuaternion(float x, float y, float z, float w) {
+        return (float) Math.atan2(2 * (w * y - x * z), w * (w + x) - y * (z + y));
+    }
+
+    @UiThread
+    private void pauseOrResumeFloorplanning(boolean isPaused){
+        if (!isPaused) {
+            mTangoFloorplanner.startFloorplanning();
+        } else {
+            mTangoFloorplanner.stopFloorplanning();
+        }
     }
 
     /**

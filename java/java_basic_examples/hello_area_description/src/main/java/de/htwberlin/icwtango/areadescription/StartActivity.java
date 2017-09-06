@@ -71,10 +71,6 @@ public class StartActivity extends Activity {
         startAreaDescriptionActivity();
     }
 
-    public void floorplanClicked(View v) {
-        startFloorPlanActivity();
-    }
-
     /**
      * The "ADF List View" button has been clicked.
      * Defined in {@code activity_start.xml}
@@ -91,11 +87,6 @@ public class StartActivity extends Activity {
         startAdIntent.putExtra(USE_AREA_LEARNING, mIsUseAreaLearning);
         startAdIntent.putExtra(LOAD_ADF, mIsLoadAdf);
         startActivity(startAdIntent);
-    }
-
-    private void startFloorPlanActivity() {
-        Intent startFloorIntent = new Intent(this, FloorPlanReconstructionActivity.class);
-        startActivity(startFloorIntent);
     }
 
     /**
