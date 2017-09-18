@@ -1,0 +1,12 @@
+% !TEX root = main.tex
+
+\section{Google ARCore}
+Google ARCore ist ebenfalls eine Augmented-Reality-Plattform. Offiziell ist es nur auf den Pixel Phones und dem Samsung Galaxy S8 unterstützt. Es basiert auf drei fundamentalen Konzepten \cite{arcore_overview}:
+
+\subsection{Motion tracking} Wie bei Tango wird per Feature Points im gesehenen Bild die Position und Ausrichtung des Geräts im Raum ermittelt. Daten aus dem Gyroskop und Beschleunigungssensor (IMU) des Telefons werden hierbei ebenfalls mit den Bilddaten kombiniert. \cite{arcore_fundamentals}\par
+Problem sind bei ruckartigen Bewegungen zu erwarten. Google Tango löste dieses Problem mit dem Area Learning.
+
+\subsection{Environmental understanding} Durch Analyse der Feature Points werden flache Oberflächen erkannt und können z.B. mit Objekten bestückt werden. \cite{arcore_fundamentals}\par
+Dies ist in Google Tango möglicherweise mit einem größeren Overload verbunden, aber auf jeden Fall möglich. %Ist das richtig? Am besten nochmal per Quellcode prüfen in beiden SDKs.
+
+\subsection{Light estimation} \cite{arcore_fundamentals}
