@@ -1,3 +1,37 @@
 % !TEX root = main.tex
 
 \section{Apple ARKit}
+Das ARKit von Apple ist ein Augmented-Reality-Framework, welches mit iOS 11 veröffentlicht wurde \cite{apple_arkit}. ARKit und ARCore sind ihrem Aufbau sehr ähnlich, sowohl in den Konzepten, als auch in den Schnittstellen. In Tabelle \ref{arkit_vs_arcore} ist dies verdeutlicht.
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|p{4cm}|p{4cm}|}
+		\hline
+		\textbf{ARKit} & \textbf{ARCore}\\
+		\hline
+		\multicolumn{2}{|c|}{\textbf{Konzepte}}\\
+		\hline
+		Visual Inertial Odometry & Motion Tracking\\
+		Scene Understanding & Environmental Understanding\\
+		Light Estimation & Light Estimation\\
+		\hline
+		\multicolumn{2}{|c|}{\textbf{Schnittstellen}}\\
+		\hline
+		ARAnchor & Anchor \\
+		ARConfiguration & Config\\
+		ARFrame & Frame\\
+		ARHitTestResult & HitResult\\
+		ARLightEstimate /
+		\newline ARDirectionalLightEstimate & LightEstimate\newline\\
+		ARPlaneAnchor & Plane\\
+		ARSession & Session\\
+		ARFaceAnchor & ---\\
+		ARCamera & ---\\
+		\hline
+	\end{tabular}
+	\caption{Gegenüberstellung von Apple ARKit und Google ARCore}
+	\label{arkit_vs_arcore}
+\end{table}
+
+Womit das ARKit deutlich hervorsticht ist die "`Face-Based AR Experience"'. Mithilfe der "`TrueDepth Camera"' als Front-Kamera des iPhones kann die Position und das Aussehen des Gesichts erfasst werden und z.B. auf ein virtuelles Gesicht übertragen werden. Ein weiterer Punkt ist das komplette ausblenden des Hintergrunds.\cite{iphoneX}\\
+Die Technologie dahinter ist der Tango-Hardware sehr ähnlich. Es gibt einen Infrarotsensor und einen "`Dot-Projector"', wodurch die Tiefe der Szene, also des Gesichts, ermittelt wird. \cite{iphoneX_display}
