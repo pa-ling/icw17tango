@@ -137,6 +137,19 @@ public class AreaDescriptionPicker : MonoBehaviour, ITangoLifecycle
         m_gameControlPanel.SetActive(true);
     }
 
+	/// <summary>
+	/// Delete the selected Area Description.
+	/// </summary>
+	public void DeleteSelectedAreaDescription()
+	{
+		AreaDescription areaDescription = AreaDescription.ForUUID(m_curAreaDescriptionUUID);
+		if (areaDescription != null)
+		{
+			areaDescription.Delete();
+			_PopulateList();
+		}
+	}
+
     /// <summary>
     /// Internal callback when a permissions event happens.
     /// </summary>
