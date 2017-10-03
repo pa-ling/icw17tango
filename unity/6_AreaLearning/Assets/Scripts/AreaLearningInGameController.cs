@@ -102,7 +102,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// <summary>
     /// List of markers placed in the scene.
     /// </summary>
-    private List<GameObject> m_markerList = new List<GameObject>();
+	private Dictionary<GameObject, String> m_markerDict = new Dictionary<GameObject, String>();
 
     /// <summary>
     /// Reference to the newly placed marker.
@@ -266,9 +266,12 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             screenRect.yMin = Mathf.Min(yMin, yMax);
             screenRect.yMax = Mathf.Max(yMin, yMax);
             
+			Rect infoRect = new Rect (screenRect.x, screenRect.y + screenRect.height, screenRect.width, screenRect.height);
+			GUI.Label (infoRect, "<size=20>" +  m_markerDict [m_selectedMarker.gameObject] + "</size>");
+
             if (GUI.Button(screenRect, "<size=30>Hide</size>"))
             {
-                m_markerList.Remove(m_selectedMarker.gameObject);
+                m_markerDict.Remove(m_selectedMarker.gameObject);
                 m_selectedMarker.SendMessage("Hide");
                 m_selectedMarker = null;
                 m_selectedRect = new Rect();
@@ -282,6 +285,8 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         {
             m_selectedRect = new Rect();
         }
+
+
 
 #if UNITY_EDITOR
         // Handle text input when there is no device keyboard in the editor.
@@ -506,17 +511,17 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     private void _UpdateMarkersForLoopClosures()
     {
         // Adjust mark's position each time we have a loop closure detected.
-        foreach (GameObject obj in m_markerList)
+		foreach (KeyValuePair<GameObject, string> pair in m_markerDict)
         {
-            ARMarker tempMarker = obj.GetComponent<ARMarker>();
+			ARMarker tempMarker = pair.Key.GetComponent<ARMarker>();
             if (tempMarker.m_timestamp != -1.0f)
             {
-                TangoCoordinateFramePair pair;
+                TangoCoordinateFramePair framePair;
                 TangoPoseData relocalizedPose = new TangoPoseData();
 
-                pair.baseFrame = TangoEnums.TangoCoordinateFrameType.TANGO_COORDINATE_FRAME_AREA_DESCRIPTION;
-                pair.targetFrame = TangoEnums.TangoCoordinateFrameType.TANGO_COORDINATE_FRAME_DEVICE;
-                PoseProvider.GetPoseAtTime(relocalizedPose, tempMarker.m_timestamp, pair);
+				framePair.baseFrame = TangoEnums.TangoCoordinateFrameType.TANGO_COORDINATE_FRAME_AREA_DESCRIPTION;
+				framePair.targetFrame = TangoEnums.TangoCoordinateFrameType.TANGO_COORDINATE_FRAME_DEVICE;
+				PoseProvider.GetPoseAtTime(relocalizedPose, tempMarker.m_timestamp, framePair);
 
                 Matrix4x4 uwTDevice = TangoSupport.UNITY_WORLD_T_START_SERVICE
                                       * relocalizedPose.ToMatrix4x4()
@@ -524,8 +529,8 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
 
                 Matrix4x4 uwTMarker = uwTDevice * tempMarker.m_deviceTMarker;
 
-                obj.transform.position = uwTMarker.GetColumn(3);
-                obj.transform.rotation = Quaternion.LookRotation(uwTMarker.GetColumn(2), uwTMarker.GetColumn(1));
+				pair.Key.transform.position = uwTMarker.GetColumn(3);
+				pair.Key.transform.rotation = Quaternion.LookRotation(uwTMarker.GetColumn(2), uwTMarker.GetColumn(1));
             }
         }
     }
@@ -537,15 +542,16 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     {
         // Compose a XML data list.
         List<MarkerData> xmlDataList = new List<MarkerData>();
-        foreach (GameObject obj in m_markerList)
+		foreach (KeyValuePair<GameObject, string> pair in m_markerDict)
         {
             // Add marks data to the list, we intentionally didn't add the timestamp, because the timestamp will not be
             // useful when the next time Tango Service is connected. The timestamp is only used for loop closure pose
             // correction in current Tango connection.
             MarkerData temp = new MarkerData();
-            temp.m_type = obj.GetComponent<ARMarker>().m_type;
-            temp.m_position = obj.transform.position;
-            temp.m_orientation = obj.transform.rotation;
+			temp.m_name = pair.Value;
+			temp.m_type = pair.Key.GetComponent<ARMarker>().m_type;
+			temp.m_position = pair.Key.transform.position;
+			temp.m_orientation = pair.Key.transform.rotation;
             xmlDataList.Add(temp);
         }
 
@@ -576,14 +582,14 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             return;
         }
 
-        m_markerList.Clear();
+		m_markerDict.Clear ();
         foreach (MarkerData mark in xmlDataList)
         {
             // Instantiate all markers' gameobject.
-            GameObject temp = Instantiate(m_markPrefabs[mark.m_type],
+			GameObject temp = Instantiate(m_markPrefabs[mark.m_type],
                                           mark.m_position,
                                           mark.m_orientation) as GameObject;
-            m_markerList.Add(temp);
+			m_markerDict.Add(temp, mark.m_name);
         }
     }
 
@@ -671,7 +677,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
                                             Vector3.one);
         markerScript.m_deviceTMarker = Matrix4x4.Inverse(uwTDevice) * uwTMarker;
         
-        m_markerList.Add(newMarkObject);
+        m_markerDict.Add(newMarkObject, "DasIstEinTestText");
 
         m_selectedMarker = null;
     }
@@ -684,6 +690,9 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     [System.Serializable]
     public class MarkerData
     {
+		[XmlElement("name")]
+		public String m_name;
+
         /// <summary>
         /// Marker's type.
         /// 
