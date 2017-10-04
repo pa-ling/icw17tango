@@ -66,26 +66,6 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     [HideInInspector]
     public AreaDescription m_curAreaDescription;
 
-#if UNITY_EDITOR
-    /// <summary>
-    /// Handles GUI text input in Editor where there is no device keyboard.
-    /// If true, text input for naming new saved Area Description is displayed.
-    /// </summary>
-    private bool m_displayGuiTextInput;
-
-    /// <summary>
-    /// Handles GUI text input in Editor where there is no device keyboard.
-    /// Contains text data for naming new saved Area Descriptions.
-    /// </summary>
-    private string m_guiTextInputContents;
-
-    /// <summary>
-    /// Handles GUI text input in Editor where there is no device keyboard.
-    /// Indicates whether last text input was ended with confirmation or cancellation.
-    /// </summary>
-    private bool m_guiTextInputResult;
-#endif
-
     /// <summary>
     /// If set, then the depth camera is on and we are waiting for the next depth update.
     /// </summary>
@@ -267,9 +247,9 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             screenRect.yMax = Mathf.Max(yMin, yMax);
             
 			Rect infoRect = new Rect (screenRect.x, screenRect.y + screenRect.height, screenRect.width, screenRect.height);
-			GUI.Label (infoRect, "<size=20>" +  m_markerDict [m_selectedMarker.gameObject] + "</size>");
+			GUI.Label (infoRect, "<size=40>" +  m_markerDict [m_selectedMarker.gameObject] + "</size>");
 
-            if (GUI.Button(screenRect, "<size=30>Hide</size>"))
+            if (GUI.Button(screenRect, "<size=50>Hide</size>")) //if button is pressed
             {
                 m_markerDict.Remove(m_selectedMarker.gameObject);
                 m_selectedMarker.SendMessage("Hide");
@@ -285,45 +265,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         {
             m_selectedRect = new Rect();
         }
-
-
-
-#if UNITY_EDITOR
-        // Handle text input when there is no device keyboard in the editor.
-        if (m_displayGuiTextInput)
-        {
-            Rect textBoxRect = new Rect(100,
-                                        Screen.height - 200,
-                                        Screen.width - 200,
-                                        100);
-
-            Rect okButtonRect = textBoxRect;
-            okButtonRect.y += 100;
-            okButtonRect.width /= 2;
-
-            Rect cancelButtonRect = okButtonRect;
-            cancelButtonRect.x = textBoxRect.center.x;
-
-            GUI.SetNextControlName("TextField");
-            GUIStyle customTextFieldStyle = new GUIStyle(GUI.skin.textField);
-            customTextFieldStyle.alignment = TextAnchor.MiddleCenter;
-            m_guiTextInputContents = 
-                GUI.TextField(textBoxRect, m_guiTextInputContents, customTextFieldStyle);
-            GUI.FocusControl("TextField");
-
-            if (GUI.Button(okButtonRect, "OK")
-                || (Event.current.type == EventType.keyDown && Event.current.character == '\n'))
-            {
-                m_displayGuiTextInput = false;
-                m_guiTextInputResult = true;
-            }
-            else if (GUI.Button(cancelButtonRect, "Cancel"))
-            {
-                m_displayGuiTextInput = false;
-                m_guiTextInputResult = false;
-            }
-        }
-#endif
+			
     }
 
     /// <summary>
@@ -435,36 +377,18 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// <returns>Coroutine IEnumerator.</returns>
     private IEnumerator _DoSaveCurrentAreaDescription()
     {
-#if UNITY_EDITOR
-        // Work around lack of on-screen keyboard in editor:
-        if (m_displayGuiTextInput || m_saveThread != null)
-        {
-            yield break;
-        }
-
-        m_displayGuiTextInput = true;
-        m_guiTextInputContents = "Unnamed";
-        while (m_displayGuiTextInput)
-        {
-            yield return null;
-        }
-
-        bool saveConfirmed = m_guiTextInputResult;
-#else
         if (TouchScreenKeyboard.visible || m_saveThread != null)
         {
             yield break;
         }
         
-        TouchScreenKeyboard kb = TouchScreenKeyboard.Open("Unnamed");
-        while (!kb.done && !kb.wasCanceled)
+		TouchScreenKeyboard keyboard = TouchScreenKeyboard.Open("Unnamed");
+        while (!keyboard.done && !keyboard.wasCanceled)
         {
             yield return null;
         }
 
-        bool saveConfirmed = kb.done;
-#endif
-        if (saveConfirmed)
+		if (keyboard.done)
         {
             // Disable interaction before saving.
             m_initialized = false;
@@ -472,12 +396,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             if (m_tangoApplication.m_areaDescriptionLearningMode)
             {
                 // The keyboard is not readable if you are not in the Unity main thread. Cache the value here.
-                string name;
-#if UNITY_EDITOR
-                name = m_guiTextInputContents;
-#else
-                name = kb.text;
-#endif
+                string name = keyboard.text;
 
                 m_saveThread = new Thread(delegate()
                 {
@@ -676,8 +595,24 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
                                             newMarkObject.transform.rotation,
                                             Vector3.one);
         markerScript.m_deviceTMarker = Matrix4x4.Inverse(uwTDevice) * uwTMarker;
+
+		TouchScreenKeyboard keyboard = TouchScreenKeyboard.Open("Unnamed");
+		while (!keyboard.done && !keyboard.wasCanceled)
+		{
+			yield return null;
+		}
+
+		string name;
+		if (keyboard.done)
+		{
+			name = keyboard.text;
+		}
+		else
+		{
+			name = "NothingEntered";
+		}
         
-        m_markerDict.Add(newMarkObject, "DasIstEinTestText");
+        m_markerDict.Add(newMarkObject, name);
 
         m_selectedMarker = null;
     }

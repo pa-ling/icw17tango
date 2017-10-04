@@ -12,15 +12,18 @@ Nachdem ich mich in meiner letzten Arbeit theoretisch mit den Konzepten von Goog
 \end{enumerate}
 Ein besonderes Feature von Tango ist das "`Area Learning"'. Dabei wird ein "`Gedächtnis"' der Umgebung anhand von Landmarken aufgebaut. Diese werden in einer Area Description File (ADF) Verliert das Gerät die Orientierung findet es über das Area Learning wieder zurück.\cite{fehling}\\
 In der Praxis dient es jedoch lediglich als Ergänzung zum Motion Tracking. Auf die gespeicherten Landmarken hat man keinen Zugriff, sodass eine Ortung über das Motion Tracking bzw. die TangoPointCloud erfolgen muss.\\
-Nach den Unity-"`HowTos"' konnte ich noch nicht sehr viel von Tango sehen, da viel von der Unity-Engine bzw. der dazugehörigen Tango-SDK abstrahiert wurde. Aus diesem Grund schaute ich mir auch die Java-API von Tango an. Zu dieser werden von Google keine Tutorials geliefert, jedoch haben sie auf Github eine Reihe von Beispiel-Applikationen:
+Nach den Unity-"`HowTos"' konnte ich noch nicht sehr viel von Tango sehen, da viel von der Unity-Engine bzw. der dazugehörigen Tango-SDK abstrahiert wurde. Aus diesem Grund schaute ich mir auch die Java-API von Tango an. Zu dieser werden von Google keine Tutorials geliefert, jedoch haben sie auf Github eine Reihe von Beispiel-Applikationen, sowohl für Java (J) als auch für Unity (U):
 \begin{itemize}
-	\item\textbf{Hello Area Description:} Erstellen von Speichern von ADFs. Die App zeigt zusätzlich wann man im ADF lokalisiert ist und wann nicht.
-	\item\textbf{Augmented Reality:} Platziert Mond und Erde an die nächst beste Position. Diese gibt es einmal als reine OpenGL ES Applikation und einmal mit der Rajawali Engine.
-	\item\textbf{Floor Planner:} Erstellt den Grundriss des gescannten Gebiets.
-	\item\textbf{Green Screen:} Simuliert einen Greenscreen mithilfe der Tiefendaten (hintere Bereiche werden ausgeblendet).
-	\item\textbf{Mesh Builder:} Gleiche Funktionsweise wie der Raumscan in Unity.
-	\item\textbf{Model Correspondance:} Platziert ein Haus zwischen vier vom Nutzer gesetzten Punkten. Die größe des Hause hängt von der mit den Punkten markierten Fläche ab.
-	\item\textbf{Occlusion:} Per Tap auf dem Bildschirm wird eine Erde platziert, welche von anderen realen Objekten verdeckt werden kann.
-	\item\textbf{Point Cloud:} Visualisiert die Punktwolke. Der Nutzer kann zwischen verschiedenen Perspektiven wählen. Dabei handel es sich um eine komplexere Variante als die von den Unity-"`HowTos"'.
-	\item\textbf{Point To Point:} Der Nutzer setzt zwei Punkte der Tap. Die Strecke zwischen den beiden Punkten wird visualisiert und die Länge wird berechnet.
+	\item\textbf{Hello Area Description / Area Description Management (J, U):} Erstellen von Speichern von ADFs. Die App zeigt zusätzlich wann man im ADF lokalisiert ist und wann nicht.
+	\item\textbf{Area Learning (U):} Benutzen der Area Description Motion API und Platzieren von Objekten an benutzerspezifischen Stellen.
+	\item\textbf{(Simple) Augmented Reality (J, U):} Platziert Mond und Erde an die nächst beste Position. Diese gibt es einmal als reine OpenGL ES Applikation und einmal mit der Rajawali Engine.
+	\item\textbf{Find Floor (U):} Sucht in der aktuell gesehen Szene die niedrigste Ebene des Raumes (Boden).
+	\item\textbf{Floor Planner (J):} Erstellt den Grundriss des gescannten Gebiets.
+	\item\textbf{Green Screen (J):} Simuliert einen Greenscreen mithilfe der Tiefendaten (hintere Bereiche werden ausgeblendet).
+	\item\textbf{Mesh Builder (J, U):} Gleiche Funktionsweise wie der Raumscan in Unity.
+	\item\textbf{Model Correspondance (J):} Platziert ein Haus zwischen vier vom Nutzer gesetzten Punkten. Die größe des Hause hängt von der mit den Punkten markierten Fläche ab.
+	\item\textbf{Motion Tracking (J, U)} Zeigt eine virtuelle Welt, in der man sich über Motion Tracking bewegen kann.
+	\item\textbf{Occlusion (J):} Per Tap auf dem Bildschirm wird eine Erde platziert, welche von anderen realen Objekten verdeckt werden kann.
+	\item\textbf{Point Cloud (J, U):} Visualisiert die Punktwolke. Der Nutzer kann zwischen verschiedenen Perspektiven wählen. Dabei handelt es sich um eine komplexere Variante als die von den Unity-"`HowTos"'.
+	\item\textbf{Point To Point (J, U):} Der Nutzer setzt zwei Punkte der Tap. Die Strecke zwischen den beiden Punkten wird visualisiert und die Länge wird berechnet
 \end{itemize}
