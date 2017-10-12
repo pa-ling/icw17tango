@@ -82,7 +82,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// <summary>
     /// List of markers placed in the scene.
     /// </summary>
-	private Dictionary<GameObject, String> m_markerDict = new Dictionary<GameObject, String>();
+	private Dictionary<GameObject, MarkerSemantics> m_markerDict = new Dictionary<GameObject, MarkerSemantics>();
 
     /// <summary>
     /// Reference to the newly placed marker.
@@ -118,6 +118,8 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     private TangoApplication m_tangoApplication;
 
     private Thread m_saveThread;
+
+	private TouchScreenKeyboard textKeyboard;
 
     /// <summary>
     /// Unity Start function.
@@ -171,6 +173,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
 
         if (Input.touchCount == 1)
         {
+			Debug.Log("AreaLearningInGameController: touch");
             Touch t = Input.GetTouch(0);
             Vector2 guiPosition = new Vector2(t.position.x, Screen.height - t.position.y);
             Camera cam = Camera.main;
@@ -233,7 +236,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// 
     /// Mainly for removing markers.
     /// </summary>
-    public void OnGUI()
+	public void OnGUI()
     {
         if (m_selectedMarker != null)
         {
@@ -246,10 +249,19 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             screenRect.yMin = Mathf.Min(yMin, yMax);
             screenRect.yMax = Mathf.Max(yMin, yMax);
             
-			Rect infoRect = new Rect (screenRect.x, screenRect.y + screenRect.height, screenRect.width, screenRect.height);
-			GUI.Label (infoRect, "<size=40>" +  m_markerDict [m_selectedMarker.gameObject] + "</size>");
+			Rect nameRect = new Rect (screenRect.x, screenRect.y - screenRect.height, screenRect.width, screenRect.height);
+			Rect infoRect = new Rect (screenRect.x + screenRect.width, screenRect.y, screenRect.width, screenRect.height);
+			screenRect.y += screenRect.height;
+			screenRect.height /= 4;
+			screenRect.width /= 2;
+			screenRect.x += screenRect.width / 2;
 
-            if (GUI.Button(screenRect, "<size=50>Hide</size>")) //if button is pressed
+			GUIStyle nameStyle = new GUIStyle ();
+			nameStyle.alignment = TextAnchor.LowerCenter;
+			nameStyle.normal.textColor = Color.white;
+			GUI.Label (nameRect, "<size=50>" +  m_markerDict [m_selectedMarker.gameObject].name + "</size>", nameStyle);
+
+            if (GUI.Button(screenRect, "<size=50>Delete</size>")) //if button is pressed
             {
                 m_markerDict.Remove(m_selectedMarker.gameObject);
                 m_selectedMarker.SendMessage("Hide");
@@ -260,6 +272,26 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             {
                 m_selectedRect = screenRect;
             }
+
+			GUIStyle textStyle = new GUIStyle (GUI.skin.button);
+			textStyle.wordWrap = true;
+
+
+
+			if (GUI.Button(infoRect, "<size=40>" +  m_markerDict [m_selectedMarker.gameObject].text + "</size>", textStyle))
+			{
+				textKeyboard = TouchScreenKeyboard.Open(m_markerDict [m_selectedMarker.gameObject].text, TouchScreenKeyboardType.Default, true, true, false, false, "Enter text for this marker");
+			}
+
+			if (textKeyboard != null)
+			{
+				m_markerDict [m_selectedMarker.gameObject].text = textKeyboard.text;
+				if (textKeyboard.done || textKeyboard.wasCanceled)
+				{
+					textKeyboard = null;
+				}
+			}
+
         }
         else
         {
@@ -430,7 +462,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     private void _UpdateMarkersForLoopClosures()
     {
         // Adjust mark's position each time we have a loop closure detected.
-		foreach (KeyValuePair<GameObject, string> pair in m_markerDict)
+		foreach (KeyValuePair<GameObject, MarkerSemantics> pair in m_markerDict)
         {
 			ARMarker tempMarker = pair.Key.GetComponent<ARMarker>();
             if (tempMarker.m_timestamp != -1.0f)
@@ -461,13 +493,14 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     {
         // Compose a XML data list.
         List<MarkerData> xmlDataList = new List<MarkerData>();
-		foreach (KeyValuePair<GameObject, string> pair in m_markerDict)
+		foreach (KeyValuePair<GameObject, MarkerSemantics> pair in m_markerDict)
         {
             // Add marks data to the list, we intentionally didn't add the timestamp, because the timestamp will not be
             // useful when the next time Tango Service is connected. The timestamp is only used for loop closure pose
             // correction in current Tango connection.
             MarkerData temp = new MarkerData();
-			temp.m_name = pair.Value;
+			temp.m_name = pair.Value.name;
+			temp.m_text = pair.Value.text;
 			temp.m_type = pair.Key.GetComponent<ARMarker>().m_type;
 			temp.m_position = pair.Key.transform.position;
 			temp.m_orientation = pair.Key.transform.rotation;
@@ -508,7 +541,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
 			GameObject temp = Instantiate(m_markPrefabs[mark.m_type],
                                           mark.m_position,
                                           mark.m_orientation) as GameObject;
-			m_markerDict.Add(temp, mark.m_name);
+			m_markerDict.Add(temp, new MarkerSemantics(mark.m_name, mark.m_text));
         }
     }
 
@@ -596,23 +629,20 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
                                             Vector3.one);
         markerScript.m_deviceTMarker = Matrix4x4.Inverse(uwTDevice) * uwTMarker;
 
-		TouchScreenKeyboard keyboard = TouchScreenKeyboard.Open("Unnamed");
+		TouchScreenKeyboard keyboard = null;
+		keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default, true, false, false, false, "Enter name of this marker");
 		while (!keyboard.done && !keyboard.wasCanceled)
 		{
 			yield return null;
 		}
 
-		string name;
+		string name = "Empty";
 		if (keyboard.done)
 		{
 			name = keyboard.text;
 		}
-		else
-		{
-			name = "NothingEntered";
-		}
         
-        m_markerDict.Add(newMarkObject, name);
+		m_markerDict.Add (newMarkObject, new MarkerSemantics (name, ""));
 
         m_selectedMarker = null;
     }
@@ -627,6 +657,9 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     {
 		[XmlElement("name")]
 		public String m_name;
+
+		[XmlElement("text")]
+		public String m_text;
 
         /// <summary>
         /// Marker's type.
@@ -649,4 +682,16 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         [XmlElement("orientation")]
         public Quaternion m_orientation;
     }
+
+	public class MarkerSemantics
+	{
+		public String name;
+		public String text;
+
+		public MarkerSemantics(String name, String text)
+		{
+			this.name = name;
+			this.text = text;
+		}
+	}
 }
