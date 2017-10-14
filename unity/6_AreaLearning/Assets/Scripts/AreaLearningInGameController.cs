@@ -409,45 +409,49 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// <returns>Coroutine IEnumerator.</returns>
     private IEnumerator _DoSaveCurrentAreaDescription()
     {
+		
         if (TouchScreenKeyboard.visible || m_saveThread != null)
         {
             yield break;
         }
+
+		// Disable interaction before saving.
+		m_initialized = false;
+		m_savingText.gameObject.SetActive(true);
+		if (m_tangoApplication.m_areaDescriptionLearningMode)
+		{
         
-		TouchScreenKeyboard keyboard = TouchScreenKeyboard.Open("Unnamed");
-        while (!keyboard.done && !keyboard.wasCanceled)
-        {
-            yield return null;
-        }
+			TouchScreenKeyboard keyboard = TouchScreenKeyboard.Open("Unnamed");
+	        while (!keyboard.done && !keyboard.wasCanceled)
+	        {
+	            yield return null;
+	        }
 
-		if (keyboard.done)
-        {
-            // Disable interaction before saving.
-            m_initialized = false;
-            m_savingText.gameObject.SetActive(true);
-            if (m_tangoApplication.m_areaDescriptionLearningMode)
-            {
-                // The keyboard is not readable if you are not in the Unity main thread. Cache the value here.
-                string name = keyboard.text;
+			if (keyboard.done)
+	        {
+	            
+	                // The keyboard is not readable if you are not in the Unity main thread. Cache the value here.
+	                string name = keyboard.text;
 
-                m_saveThread = new Thread(delegate()
-                {
-                    // Start saving process in another thread.
-                    m_curAreaDescription = AreaDescription.SaveCurrent();
-                    AreaDescription.Metadata metadata = m_curAreaDescription.GetMetadata();
-                    metadata.m_name = name;
-                    m_curAreaDescription.SaveMetadata(metadata);
-                });
-                m_saveThread.Start();
-            }
-            else
-            {
-                _SaveMarkerToDisk();
-                #pragma warning disable 618
-                Application.LoadLevel(Application.loadedLevel);
-                #pragma warning restore 618
-            }
-        }
+	                m_saveThread = new Thread(delegate()
+	                {
+	                    // Start saving process in another thread.
+	                    m_curAreaDescription = AreaDescription.SaveCurrent();
+	                    AreaDescription.Metadata metadata = m_curAreaDescription.GetMetadata();
+	                    metadata.m_name = name;
+	                    m_curAreaDescription.SaveMetadata(metadata);
+	                });
+	                m_saveThread.Start();
+	           
+	        }
+		}
+		else
+		{
+			_SaveMarkerToDisk();
+			#pragma warning disable 618
+			Application.LoadLevel(Application.loadedLevel);
+			#pragma warning restore 618
+		}
     }
 
     /// <summary>
