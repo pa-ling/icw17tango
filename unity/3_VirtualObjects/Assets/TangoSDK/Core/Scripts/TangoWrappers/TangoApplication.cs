@@ -629,10 +629,7 @@ namespace Tango
                     OrientationManager.Rotation colorCameraRotation)
                     {
                         // Cannot pass event directly due to delegate instance immutability.
-                        if (OnDisplayChanged != null)
-                        {
-                            OnDisplayChanged(displayRotation, colorCameraRotation);
-                        }
+                        OnDisplayChanged(displayRotation, colorCameraRotation);
                     },
                     AndroidHelperWrapper.Instance);
 
@@ -656,12 +653,6 @@ namespace Tango
 
             TangoSupport.UpdatePoseMatrixFromDeviceRotation(AndroidHelper.GetDisplayRotation(),
                                                             AndroidHelper.GetColorCameraRotation());
-
-#if UNITY_EDITOR
-            // We must initialize this on the main Unity thread, since the value
-            // is sometimes used within a separate saving thread.
-            AreaDescription.GenerateEmulatedSavePath();
-#endif
 
             // Importing and exporting Area Descriptions can be done before you connect. We must
             // propogate those events if they happen.
@@ -2531,28 +2522,23 @@ namespace Tango
                     // Tango Support initialize has to be called after service binder is set because
                     // it invokes TangoService functions under the hood.
                     TangoSupport.Initialize();
-                    _updateDisplayRotation();
 
                     m_permissionsManager.OnPermissionResult(PermissionsTypes.SERVICE_BOUND,
                         result == Common.ErrorType.TANGO_SUCCESS);
                     break;
                 case AndroidMessageType.ON_DISPLAY_CHANGED:
-                    _updateDisplayRotation();
+                    if (m_applicationState.IsTangoStarted)
+                    {
+                        OrientationManager.Rotation displayRotation = m_androidHelper.GetDisplayRotation();
+                        OrientationManager.Rotation colorCameraRotation = m_androidHelper.GetColorCameraRotation();
+                        TangoSupport.UpdatePoseMatrixFromDeviceRotation(displayRotation, colorCameraRotation);
+                        m_onDisplayChanged(displayRotation, colorCameraRotation);
+                    }
+
                     break;
                 default:
                     break;
                 }
-            }
-
-            /// <summary>
-            /// Update display rotation parameters based on current display orientation.
-            /// </summary>
-            private void _updateDisplayRotation()
-            {
-                OrientationManager.Rotation displayRotation = m_androidHelper.GetDisplayRotation();
-                OrientationManager.Rotation colorCameraRotation = m_androidHelper.GetColorCameraRotation();
-                TangoSupport.UpdatePoseMatrixFromDeviceRotation(displayRotation, colorCameraRotation);
-                m_onDisplayChanged(displayRotation, colorCameraRotation);
             }
 
             /// <summary>

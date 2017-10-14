@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 //-----------------------------------------------------------------------
 // <copyright file="DepthAsColor.shader" company="Google">
 //
@@ -17,11 +19,6 @@
 //
 // </copyright>
 //-----------------------------------------------------------------------
-
-// Don't remove the following line. It is used to bypass Unity
-// upgrader change. This is necessary to make sure the shader 
-// continues to compile on Unity 5.2
-// UNITY_SHADER_NO_UPGRADE
 Shader "Custom/OcclusionMesh" 
 {
     SubShader
@@ -42,7 +39,7 @@ Shader "Custom/OcclusionMesh"
             v2f vert(appdata_base v)
             {
                 v2f o;
-                o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.pos = UnityObjectToClipPos(v.vertex);
                 o.projPos = ComputeScreenPos(o.pos);
 
                 return o;

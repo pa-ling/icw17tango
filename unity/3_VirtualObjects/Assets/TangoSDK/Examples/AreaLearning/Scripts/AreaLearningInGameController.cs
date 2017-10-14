@@ -97,7 +97,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// In this class, we need TangoARPoseController reference to get the timestamp and pose when we place a marker.
     /// The timestamp and pose is used for later loop closure position correction. 
     /// </summary>
-    private TangoPoseController m_poseController;
+    private TangoARPoseController m_poseController;
 
     /// <summary>
     /// List of markers placed in the scene.
@@ -146,7 +146,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
     /// </summary>
     public void Start()
     {
-        m_poseController = FindObjectOfType<TangoPoseController>();
+        m_poseController = FindObjectOfType<TangoARPoseController>();
         m_tangoApplication = FindObjectOfType<TangoApplication>();
         
         if (m_tangoApplication != null)
@@ -520,7 +520,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
 
                 Matrix4x4 uwTDevice = TangoSupport.UNITY_WORLD_T_START_SERVICE
                                       * relocalizedPose.ToMatrix4x4()
-                                      * TangoSupport.DEVICE_T_UNITY_CAMERA;
+                                      * m_poseController.m_dTuc;
 
                 Matrix4x4 uwTMarker = uwTDevice * tempMarker.m_deviceTMarker;
 
@@ -661,10 +661,10 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         ARMarker markerScript = newMarkObject.GetComponent<ARMarker>();
 
         markerScript.m_type = m_currentMarkType;
-        markerScript.m_timestamp = (float)m_poseController.LastPoseTimestamp;
+        markerScript.m_timestamp = (float)m_poseController.m_poseTimestamp;
         
-        Matrix4x4 uwTDevice = Matrix4x4.TRS(m_poseController.transform.position,
-                                            m_poseController.transform.rotation,
+        Matrix4x4 uwTDevice = Matrix4x4.TRS(m_poseController.m_tangoPosition,
+                                            m_poseController.m_tangoRotation,
                                             Vector3.one);
         Matrix4x4 uwTMarker = Matrix4x4.TRS(newMarkObject.transform.position,
                                             newMarkObject.transform.rotation,

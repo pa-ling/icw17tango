@@ -1,4 +1,6 @@
-﻿/*
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+/*
  * Copyright 2016 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +16,6 @@
  * limitations under the License.
  */
 
-// Don't remove the following line. It is used to bypass Unity
-// upgrader change. This is necessary to make sure the shader 
-// continues to compile on Unity 5.2
-// UNITY_SHADER_NO_UPGRADE
 Shader "Custom/UnlitVertexColor" {
     Properties {
     }
@@ -43,7 +41,7 @@ Shader "Custom/UnlitVertexColor" {
 
             v2f vert(IN input) {
                 v2f o;
-                o.pos = mul(UNITY_MATRIX_MVP, input.pos);
+                o.pos = UnityObjectToClipPos(input.pos);
                 o.color = input.color;
                 return o;
             }
