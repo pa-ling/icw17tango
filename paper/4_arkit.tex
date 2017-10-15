@@ -29,13 +29,51 @@ Das ARKit von Apple ist ein Augmented-Reality-Framework, welches mit iOS 11 ver�
 		ARCamera & ---\\
 		\hline
 	\end{tabular}
-	\caption{Gegenüberstellung von Apple ARKit und Google ARCore}
+	\caption{Gegenüberstellung von Apple ARKit\cite{arkit_reference} und Google ARCore\cite{arcore_android_reference}}
 	\label{arkit_vs_arcore}
 \end{table}
+
+%ARKit hat auch so etwas wie AreaLearning da Positionen gespeichert werden
 
 Womit das ARKit deutlich hervorsticht ist die "`Face-Based AR Experience"'. Mithilfe der "`TrueDepth Camera"' als Front-Kamera des iPhones kann die Position und das Aussehen des Gesichts erfasst werden und z.B. auf ein virtuelles Gesicht übertragen werden. Ein weiterer Punkt ist das komplette ausblenden des Hintergrunds.\cite{iphoneX}
 
 Die Technologie dahinter ist der Tango-Hardware sehr ähnlich. Es gibt einen Infrarotsensor und einen "`Dot-Projector"', wodurch die Tiefe der Szene, also des Gesichts, ermittelt wird. \cite{iphoneX_display}
 
-%eher fazit:
-Ich denke es ist nur eine Frage der Zeit bis diese Technologie auch in der hinteren Kamera eingebaut wird. Die zusätzliche Hardware stellt für Apple-Produkte durch die geringe Produktvielfalt ein geringeres Problem dar als bei Android-Produkten, wo verschiedene Hersteller erst nachziehen müssen. Die Vergangenheit zeigt jedoch, dass eine populäre Technologie sich schnell durchsetzt, damit die Hersteller konkurrenzfähig bleiben. Die Frage ist jedoch, welchen Nutzen Endverbraucher aus Augmented Reality auf dem Smartphone ziehen können. ARCore und ARKit werden durch ihre geringen Kosten genau diese Frage beantworten.
+Ein beliebtes Genre für AR-Apps ist das Messen der Länge oder Größe von realen Objekten. Dazu gibt es eine Vielzahl von Apps im Apple Appstore, z.B. die aktuell beswertesten "`AirMeasure"' oder "`3-in-1 Ruler"'. Google ist diesem Trend zuvorgekommen und liefert mit dem Tango-Gerät eine eigene vorinstallierte App namens "`Measure"' mit. Mit diesen Applikationen lässt sich aber auch gut die Präzision der beiden Plattformen testen. Die Ergebnisse der Messungen sind in Tabelle \ref{ar_measure_apps_comparison} zu sehen.
+
+Google Measure unterscheidet sich um wenige Zentimeter von den realen Maßen. Die Differenzen entstehen zum Großteil aufgrund der Benutzeroberfläche der App. In der Mitte der App befindet sich ein Punkt mit dem die Endpunkte der Strecke markiert werden. Aufgrund der Größe dieses Punktes wird allerdings das präzise Platzieren der Endpunkte erschwert.
+
+%vertikal und lange Strecken nochmal prüfen?
+Die ARKit Apps sind gerade bei kleineren Strecken ziemlich präzise. Bei eher längeren Strecken wie z.B. der Länge des Türrahmens ist die Abweichung jedoch ziemlich groß. Eine der Apps war nicht in der Lage auf vertikalen Flächen zu messen, weshalb die Messung des Türrahmens dort gar nicht möglich war. Allerdings könnte das auch den Defizit der anderen App bei dieser Strecke erklären, was bedeuten würde, dass das ARKit nur horizontale Flächen erkennt. Des Weiteren ist die Bedienung der Apps etwas schwieriger, da das Tracking teilweise verloren geht. Dabei kam eine Nachricht, dass man für bessere Lichtverhältnisse sorgen solle. Ich denke aber an dieser Stelle war wieder das Problem, dass es keine horizontale Ebene gab. 
+
+Das zu messende Objekt muss vor der Messung aus mehreren Positionen abgefilmt werden. Letzteres ist ein starkes Indiz dafür, dass beim ARKit Stereoskopie zum Einsatz kommt, d.h. die Tiefe in den Bildern wird aus mehreren Kamerabildern berechnet. Es wird eine zweite Kamera simuliert. Sobald eine horizontale Ebene erfasst wurde und man immer solch eine Ebene im Bild war, war das Tracking in den Tests störungsfrei. Ein platziertes Objekt kann in Abbildung \ref{example_app_arkit} gesehen werden. Das Objekt steht dabei direkt auf dem Boden und bleibt bei Bewegungen an der gleichen Stelle. Im Vergleich zu Google Tango ist dies mindestens genauso gut, wenn nicht sogar etwas stabiler.
+
+%Mit jung klären?:
+Beim Probieren mehrerer Apps war keine dabei, die es ermöglicht platzierte Objekte an einer Stelle zu speichern. Aus diesem Grund vermute ich, dass ein Feature wie das Area Learning im ARKit nicht gibt. Auch in den Schnittstellendokumentationen habe ich dazu nichts gefunden.
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|p{1.9cm}|p{1.74cm}|p{1.74cm}|p{1.74cm}|}
+		\hline
+		& \textbf{Tisch} & \textbf{Türrahmen} & \textbf{Smartphone}\\
+		\hline
+		\textbf{Zollstock} & 100x60 & 199x83 & 14,5x7\\
+		\hline
+		\textbf{Goole Measure} & 98x58 & 200x84 & 13x6\\
+		\hline
+		\textbf{AirMeasure}& 99,3x58,4 & 190x80,9 & 14,2x7,8\\
+		\hline
+		\textbf{3-in-1 Ruler} & 98,8x59,3 & XXXx80,5 & 13,7x6,7\\
+		\hline
+	\end{tabular}
+	\caption{Tests von Apps, die reale Objekte abmessen (Maße in cm)}
+	\label{ar_measure_apps_comparison}
+\end{table}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=3in]{pictures/arkit_object}
+	\caption{Virtuelles Objekt wird in die reale Welt projiziert (ARKit)}
+	\label{example_app_arkit}
+\end{figure}
+

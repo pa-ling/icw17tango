@@ -16,25 +16,37 @@ Google ARCore ist ebenfalls eine Augmented-Reality-Plattform. Offiziell ist es n
 
 ARCore baut laut Google auf der Arbeit von Tango auf. Der Vergleich in Tabelle \ref{arcore_vs_tango} zeigt, dass sich beide sehr weit voneinander entfernen, was zum einen daran liegt, das beide mit unterschiedlichen Daten arbeiten. Zum Anderen könnte dies aber auch am Apple ARKit liegen, was später noch deutlicher wird.
 
+Das Tango SDK ist komplexer und teilweise auch technischer aufgebaut, wobei bei ARCore die Einfachheit und der Anwendungszweck mehr im Vordergrund liegen. Wie viele Features genau dadurch verloren gehen ist ohne ARCore testen zu können schwer einzuschätzen. Da in den Dokumentation nichts zu Area Learning oder ähnlichem steht, fehlt dies vermutlich hier.
+
+Schon in Vuforia werden jedoch in Markern visuelle Features verwendet um den Marker zu erkennen \cite{fehling}. Die gespeicherten Landmarken werden auch zum Großteil aus diesen bestehen, da die Lokalisierung bei schlechten Lichtverhältnissen teilweise nicht funktioniert. Also kann, wenn es noch nicht vorhanden ist, dies durchaus noch bis zum finalen Release implementiert werden.
+
 \begin{table}[h]
 	\centering
 	\begin{tabular}{|p{4cm}|p{4cm}|}
 		\hline
-		\textbf{ARCore} & \textbf{Tango}\\
+		\textbf{ARCore} & \textbf{Tango (Ausschnitt)}\\
 		\hline
-		Anchor & \\
+		Anchor & ---\\
 		Config & TangoConfig\\
 		Frame & TangoImageBuffer\\
-		HitResult & \\
-		LightEstimate & \\
-		Plane & \\
-		PlaneHitResult & \\
-		PointCloud & TangoPointCloud\\
-		PointCloudHitResult & \\
+		HitResult & ---\\
+		LightEstimate & ---\\
+		Plane & ---\\
+		PlaneHitResult & TS.IntersectionPointPlaneModelPair\\
+		PointCloud & TangoPointCloudData/ TangoPointCloudManager\\
+		PointCloudHitResult & ---\\
 		Pose & TangoPoseData\\
 		Session & Tango\\
+		--- & TangoAreaDescriptinMetaData\\
+		--- & TangoCameraIntrinsics\\
+		Session & TangoCameraNativeLoader\\
+		--- & TangoCoordinateFramePair\\
+		--- & TangoEvent\\
+		--- & TangoTextureCameraPreview\\
+		--- & TangoXyzIjData\\
 		\hline
 	\end{tabular}
-	\caption{Gegenüberstellung der Schnittstellen von Google ARCore und Google Tango}
+	\caption{Gegenüberstellung der Schnittstellen von Google ARCore\cite{arcore_android_reference} und Google Tango\cite{tango_android_reference}\\
+	Legende: TS = TangoSupport}
 	\label{arcore_vs_tango}
 \end{table}

@@ -1,7 +1,7 @@
 % !TEX root = main.tex
 
 \section{Google Tango}
-Google Tango ist eine Plattform für Augmented Reality und Computer Vision für das Android-Betriebssystem. Per Motion Tracking, Gyroskop und Beschleunigssensor ermittelt das Gerät seine Position im Raum. Über infrarotes Structured Light und Time-of-Flight-Messungen, sowie Stereo-Kameras werden Tiefenmessungen durchgeführt. Dadurch kann der Raum gescannt und in einer Punktwolke, die sog. "`Tango Point Cloud"', wiedergegeben werden. Diese kann dann z.B. dazu verwendet werden, virtuelle Objekte im realen Raum zu platzieren oder die reale Welt virtuell abzubilden. Für all dies wird spezielle zusätzliche Hardware (z.B. IR-Projektor, Infrarotsensor) im Gerät benötigt.\cite{fehling}
+Google Tango ist eine Plattform für Augmented Reality und Computer Vision für das Android-Betriebssystem. Per Motion Tracking, Gyroskop und Beschleunigssensor ermittelt das Gerät seine Position im Raum. Über infrarotes Structured Light und Time-of-Flight-Messungen, sowie Stereo-Kameras werden Tiefenmessungen durchgeführt. Dadurch kann der Raum gescannt und in einer Punktwolke, die sog. "`Tango Point Cloud"', wiedergegeben werden. Diese kann dann z.B. dazu verwendet werden, virtuelle Objekte im realen Raum zu platzieren oder die reale Welt virtuell abzubilden. Für all dies wird spezielle zusätzliche Hardware (z.B. IR-Projektor, Infrarotsensor) im Gerät benötigt. \cite{fehling}
 
 Nachdem ich mich in meiner letzten Arbeit theoretisch mit den Konzepten von Google Tango auseinandergesetzt hatte, hatte ich nun die Möglichkeit auch praktisch mit Google Tango zu arbeiten. Dazu nutzte ich das Lenovo Phab 2 Pro, das erste Tango-Gerät für Endverbraucher. Für den Einstieg bietet Google eine Reihe von "`HowTos"' für Unity an. Folgendes wurde dabei umgesetzt:
 \begin{enumerate}
@@ -28,7 +28,7 @@ Der platzierte Marker kann ebenfalls berührt werden. Anschließend erscheinen z
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=3in]{pictures/chair}
-	\caption{}
+	\caption{Ein Marker in der App "`Guide Creator"' mit zusätlichen Informationen}
 	\label{example_app_tango_unity}
 \end{figure}
 Neben Unity unterstützt Tango auch Java und C. Da Unity eine Game Engine ist und daher auf einer relative hohen Abstraktionsebene arbeitet, schaute ich auch in die Java API hinein. Zu dieser werden von Google keine Tutorials geliefert, jedoch haben sie auf Github eine Reihe von Beispiel-Applikationen, sowohl für Java (J)  \cite{tango_java_github} als auch für Unity (U) \cite{tango_unity_github}:
@@ -36,9 +36,9 @@ Neben Unity unterstützt Tango auch Java und C. Da Unity eine Game Engine ist un
 \begin{itemize}
 	\item\textbf{Hello Area Description / Area Description Management (J, U):} Erstellen von Speichern von ADFs. Die App zeigt zusätzlich wann man im ADF lokalisiert ist und wann nicht.
 	\item\textbf{(Simple) Augmented Reality (J, U):} Platziert Mond und Erde an die nächst beste Position. Diese gibt es einmal als reine OpenGL ES Applikation und einmal mit der Rajawali Engine.
-	\item\textbf{Find Floor (U):} Sucht in der aktuell gesehen Szene die niedrigste Ebene des Raumes (Boden).
+	\item\textbf{Find Floor (U):} Sucht in der aktuell gesehenen Szene die niedrigste Ebene des Raumes (i.d.R. der Boden).
 	\item\textbf{Floor Planner (J):} Erstellt den Grundriss des gescannten Gebiets.
-	\item\textbf{Green Screen (J):} Simuliert einen Greenscreen mithilfe der Tiefendaten (hintere Bereiche werden ausgeblendet).
+	\item\textbf{Green Screen (J):} Simuliert einen Greenscreen mithilfe der Tiefendaten, d.h hintere (tiefere) Bereiche werden ausgeblendet.
 	\item\textbf{Mesh Builder (J, U):} Gleiche Funktionsweise wie der Raumscan in Unity.
 	\item\textbf{Model Correspondance (J):} Platziert ein Haus zwischen vier vom Nutzer gesetzten Punkten. Die größe des Hause hängt von der mit den Punkten markierten Fläche ab.
 	\item\textbf{Motion Tracking (J, U)} Zeigt eine virtuelle Welt, in der man sich über Motion Tracking bewegen kann.
